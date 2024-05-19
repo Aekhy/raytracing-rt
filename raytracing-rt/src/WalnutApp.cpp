@@ -55,17 +55,26 @@ public:
 
 	virtual void OnUpdate(float ts) override
 	{
-		m_Camera.OnUpdate(ts);
+		if (m_Camera.OnUpdate(ts))
+			m_Renderer.ResetFrameIndex();
 	}
 
 	virtual void OnUIRender() override
 	{
+		bool ShouldResetFrame = false;
+
 		// Settings
 		ImGui::Begin("Settings");
 		ImGui::Text("Last render: %.3fms", m_LastRenderTime);
 		if (ImGui::Button("Render")) {
 			Render();
 		}
+
+		ImGui::Checkbox("Accumulate", &m_Renderer.GetSettings().Accumulate);
+
+
+		ShouldResetFrame |= ImGui::Button("Reset");
+		
 		ImGui::End();
 
 
@@ -78,15 +87,16 @@ public:
 
 			// sphere parameters
 			Sphere& sphere = m_Scene.Spheres[i];
-			ImGui::DragFloat3("Position", glm::value_ptr(sphere.Position), 0.1f);
-			ImGui::DragFloat("Radius", &sphere.Radius, 0.1f, 0.0f, 100.0f);
-			ImGui::SliderInt("Material", &sphere.MaterialIndex, 0, (int)m_Scene.Materials.size() - 1);
+			ShouldResetFrame |= ImGui::DragFloat3("Position", glm::value_ptr(sphere.Position), 0.1f);
+			ShouldResetFrame |= ImGui::DragFloat("Radius", &sphere.Radius, 0.1f, 0.0f, 100.0f);
+			ShouldResetFrame |= ImGui::SliderInt("Material", &sphere.MaterialIndex, 0, (int)m_Scene.Materials.size() - 1);
 
 			// remove button
 			if (ImGui::Button("Remove")) {
 				m_Scene.Spheres.erase(m_Scene.Spheres.begin() + i);
+				ShouldResetFrame = true;
 			}
-			
+		
 			// separator between each spheres
 			ImGui::Separator();
 
@@ -131,6 +141,7 @@ public:
 		ImGui::DragInt("Material", &PreviewSphere.MaterialIndex, 1.0f, 0, (int)m_Scene.Materials.size() - 1);
 		if (ImGui::Button("Add")) {
 			m_Scene.AddSphere(PreviewSphere.Position, PreviewSphere.Radius, PreviewSphere.MaterialIndex);
+			ShouldResetFrame = true;
 		}
 		
 		ImGui::End();
@@ -152,6 +163,11 @@ public:
 		ImGui::End();
 		ImGui::PopStyleVar();
 		
+
+		if (ShouldResetFrame)
+			m_Renderer.ResetFrameIndex();
+
+
 		Render();
 	}
 
