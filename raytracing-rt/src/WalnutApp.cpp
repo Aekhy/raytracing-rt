@@ -39,6 +39,12 @@ public:
 		mirror.Roughness = 0.04f;
 		mirror.Metallic = 1.0f;
 
+		Material& emissive = m_Scene.Materials.emplace_back();
+		emissive.Name = "Emissive";
+		emissive.Albedo = { 0.8f, 0.5f, 0.2f };
+		emissive.Roughness = 0.1f;
+		emissive.EmissionColor = emissive.Albedo;
+		emissive.EmssionPower = 2.0f;
 
 		// Spheres
 		
@@ -51,6 +57,11 @@ public:
 
 		// blue sphere
 		m_Scene.AddSphere({ 0.0f, 0.5f, 0.0f }, 0.5f, 2);
+
+		// emssive
+		m_Scene.AddSphere({ 1.0f, 0.5f, 0.0f }, 0.5f, 4);
+
+
 	}
 
 	virtual void OnUpdate(float ts) override
@@ -115,9 +126,11 @@ public:
 			// materials parameters
 			Material& material = m_Scene.Materials[i];
 			ImGui::Text("Name: %s", material.Name);
-			ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo));
-			ImGui::DragFloat("Roughness", &material.Roughness, 0.01f, 0.0f, 1.0f);
-			ImGui::DragFloat("Metallic", &material.Metallic, 0.01f, 0.0f, 1.0f);
+			ShouldResetFrame |= ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo));
+			ShouldResetFrame |= ImGui::DragFloat("Roughness", &material.Roughness, 0.01f, 0.0f, 1.0f);
+			ShouldResetFrame |= ImGui::DragFloat("Metallic", &material.Metallic, 0.01f, 0.0f, 1.0f);
+			ShouldResetFrame |= ImGui::ColorEdit3("Emssion color", glm::value_ptr(material.EmissionColor));
+			ShouldResetFrame |= ImGui::DragFloat("Emission power", &material.EmssionPower, 0.01f, 0.0f, FLT_MAX);
 
 			// remove button
 			if (ImGui::Button("Remove")) {
