@@ -63,7 +63,7 @@ glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y)
 	// placeholder to not get something too bright
 	float multiplier = 1.0f;
 
-	int bounces = 2;
+	int bounces = 4;
 	for (int i = 0; i < bounces; ++i)
 	{
 		// object intersection
@@ -72,7 +72,7 @@ glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y)
 		// Background color
 		if (payload.HitDistance < 0.0f)
 		{
-			glm::vec3 skyColor = glm::vec3(0.0f, 0.0f, 0.0f);
+			glm::vec3 skyColor = glm::vec3(0.5f, 0.6f, 0.8f);
 			color += skyColor * multiplier;
 			break;
 		}
@@ -82,14 +82,17 @@ glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y)
 		float d = glm::max(glm::dot(payload.WorldNormal, -lightDirection), 0.0f);
 
 		const Sphere& sphere = m_ActiveScene->Spheres[payload.ObjectIndex];
-		glm::vec3 sphereColor = sphere.Albedo;
+		const Material& material = m_ActiveScene->Materials[sphere.MaterialIndex];
+
+		glm::vec3 sphereColor = material.Albedo;
 		sphereColor *= d;
 		color += sphereColor * multiplier;
 
-		multiplier *= 0.7f;
+		multiplier *= 0.5f;
 
 		ray.Origin = payload.WorldPosition + 0.0001f * payload.WorldNormal;
-		ray.Direction = glm::reflect(ray.Direction, payload.WorldNormal);
+		ray.Direction = glm::reflect(ray.Direction, 
+			payload.WorldNormal + material.Roughness * Walnut::Random::Vec3(-0.5f, 0.5f));
 	}
 
 	return glm::vec4(color, 1);

@@ -18,16 +18,39 @@ public:
 	ExampleLayer()
 		: m_Camera(45.0f, 0.1f, 100.0f) 
 	{
-		//m_Scene.Spheres.push_back(Sphere{ {0.5f, 0.0f, 0.0f}, 0.5f, {1.0f, 1.0f, 0.0f} });
+		// Materials
+		Material& whiteMatte = m_Scene.Materials.emplace_back();
+		whiteMatte.Name = "White Matte";
+		whiteMatte.Roughness = 0.8f;
 
+		Material& pinkMatte = m_Scene.Materials.emplace_back();
+		pinkMatte.Name = "Pink Matte";
+		pinkMatte.Roughness = 0.8f;
+		pinkMatte.Albedo = { 1.0f, 0.0f, 1.0f };
+
+		Material& blueMatte = m_Scene.Materials.emplace_back();
+		blueMatte.Name = "Blue Matte";
+		blueMatte.Roughness = 0.8f;
+		blueMatte.Albedo = { 0.0f, 1.0f, 1.0f };
+
+		Material& mirror = m_Scene.Materials.emplace_back();
+		mirror.Name = "Mirror";
+		mirror.Albedo = { 0.0f, 0.0f, 0.0f };
+		mirror.Roughness = 0.04f;
+		mirror.Metallic = 1.0f;
+
+
+		// Spheres
+		
+		// pink sphere
 		Sphere sphere;
-		sphere.Albedo = { 0.0f, 1.0f, 1.0f };
-		sphere.Position = { -1.0f, 0.0f, 0.0f };
-		sphere.Radius = 0.8;
-
+		sphere.MaterialIndex = 3;
+		sphere.Position = { 0.0f, -15.2f, 0.0f };
+		sphere.Radius = 15.0f;
 		m_Scene.AddSphere(sphere);
 
-		m_Scene.AddSphere({ 0.5f, 0.0f, 0.0f }, 0.5f, { 1.0f, 1.0f, 0.0f });
+		// blue sphere
+		m_Scene.AddSphere({ 0.0f, 0.5f, 0.0f }, 0.5f, 2);
 	}
 
 	virtual void OnUpdate(float ts) override
@@ -56,9 +79,9 @@ public:
 			// sphere parameters
 			Sphere& sphere = m_Scene.Spheres[i];
 			ImGui::DragFloat3("Position", glm::value_ptr(sphere.Position), 0.1f);
-			ImGui::DragFloat("Radius", &sphere.Radius, 0.1f);
-			ImGui::ColorEdit3("Albedo", glm::value_ptr(sphere.Albedo));
-			
+			ImGui::DragFloat("Radius", &sphere.Radius, 0.1f, 0.0f, 100.0f);
+			ImGui::SliderInt("Material", &sphere.MaterialIndex, 0, (int)m_Scene.Materials.size() - 1);
+
 			// remove button
 			if (ImGui::Button("Remove")) {
 				m_Scene.Spheres.erase(m_Scene.Spheres.begin() + i);
@@ -72,15 +95,42 @@ public:
 		ImGui::End();
 
 
+		// Materials
+		ImGui::Begin("Materials");
+		for (size_t i = 0; i < m_Scene.Materials.size(); ++i)
+		{
+			// too distinguish the items
+			ImGui::PushID(i);
+
+			// materials parameters
+			Material& material = m_Scene.Materials[i];
+			ImGui::Text("Name: %s", material.Name);
+			ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo));
+			ImGui::DragFloat("Roughness", &material.Roughness, 0.01f, 0.0f, 1.0f);
+			ImGui::DragFloat("Metallic", &material.Metallic, 0.01f, 0.0f, 1.0f);
+
+			// remove button
+			if (ImGui::Button("Remove")) {
+				m_Scene.Materials.erase(m_Scene.Materials.begin() + i);
+			}
+
+			// separator between each spheres
+			ImGui::Separator();
+
+			ImGui::PopID();
+		}
+		ImGui::End();
+
+
 		// Add Sphere
 		ImGui::Begin("Add Sphere");
 
 		// sphere parameters
 		ImGui::DragFloat3("Position", glm::value_ptr(PreviewSphere.Position), 0.1f);
-		ImGui::DragFloat("Radius", &PreviewSphere.Radius, 0.1f);
-		ImGui::ColorEdit3("Albedo", glm::value_ptr(PreviewSphere.Albedo));
+		ImGui::DragFloat("Radius", &PreviewSphere.Radius, 0.1f, 0.0f, 100.0f);
+		ImGui::DragInt("Material", &PreviewSphere.MaterialIndex, 1.0f, 0, (int)m_Scene.Materials.size() - 1);
 		if (ImGui::Button("Add")) {
-			m_Scene.AddSphere(PreviewSphere.Position, PreviewSphere.Radius, PreviewSphere.Albedo);
+			m_Scene.AddSphere(PreviewSphere.Position, PreviewSphere.Radius, PreviewSphere.MaterialIndex);
 		}
 		
 		ImGui::End();
