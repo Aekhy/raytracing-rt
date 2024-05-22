@@ -6,7 +6,7 @@
 
 #include "Camera.h"
 #include "Ray.h"
-#include "Scene.h"
+#include "Scene.hpp"
 
 #include <memory>  // Include for std::shared_ptr
 #include <glm/glm.hpp> // Include for glm::vec2

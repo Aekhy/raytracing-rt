@@ -1,0 +1,203 @@
+{
+    "Materials": [
+        {
+            "Albedo": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "EmissionColor": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "EmssionPower": 0.0,
+            "Metallic": 0.0,
+            "Name": "White Matte",
+            "Roughness": 0.800000011920929
+        },
+        {
+            "Albedo": [
+                1.0,
+                0.0,
+                1.0
+            ],
+            "EmissionColor": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "EmssionPower": 0.0,
+            "Metallic": 0.0,
+            "Name": "Pink Matte",
+            "Roughness": 0.800000011920929
+        },
+        {
+            "Albedo": [
+                0.0,
+                1.0,
+                1.0
+            ],
+            "EmissionColor": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "EmssionPower": 0.0,
+            "Metallic": 0.0,
+            "Name": "Blue Matte",
+            "Roughness": 0.800000011920929
+        },
+        {
+            "Albedo": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "EmissionColor": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "EmssionPower": 0.0,
+            "Metallic": 1.0,
+            "Name": "Mirror",
+            "Roughness": 0.03999999910593033
+        },
+        {
+            "Albedo": [
+                0.800000011920929,
+                0.5,
+                0.20000000298023224
+            ],
+            "EmissionColor": [
+                0.800000011920929,
+                0.5,
+                0.20000000298023224
+            ],
+            "EmssionPower": 20.0,
+            "Metallic": 0.0,
+            "Name": "Emissive",
+            "Roughness": 0.10000000149011612
+        }
+    ],
+    "Spheres": [
+        {
+            "MaterialIndex": 3,
+            "Position": [
+                0.0,
+                -15.199999809265137,
+                0.0
+            ],
+            "Radius": 15.0
+        },
+        {
+            "MaterialIndex": 2,
+            "Position": [
+                0.0,
+                0.5,
+                0.0
+            ],
+            "Radius": 0.5
+        },
+        {
+            "MaterialIndex": 4,
+            "Position": [
+                4.099999904632568,
+                3.0999999046325684,
+                0.5
+            ],
+            "Radius": 1.5
+        },
+        {
+            "MaterialIndex": 1,
+            "Position": [
+                0.4000000059604645,
+                0.6000000238418579,
+                1.7000000476837158
+            ],
+            "Radius": 0.5
+        },
+        {
+            "MaterialIndex": 2,
+            "Position": [
+                1.7999999523162842,
+                3.0999999046325684,
+                1.7999999523162842
+            ],
+            "Radius": 0.5
+        },
+        {
+            "MaterialIndex": 2,
+            "Position": [
+                1.7999999523162842,
+                2.799999952316284,
+                5.099999904632568
+            ],
+            "Radius": 0.8999999761581421
+        },
+        {
+            "MaterialIndex": 2,
+            "Position": [
+                1.7999999523162842,
+                3.0999999046325684,
+                3.5999999046325684
+            ],
+            "Radius": 0.5
+        },
+        {
+            "MaterialIndex": 1,
+            "Position": [
+                1.7999999523162842,
+                4.099999904632568,
+                2.5999999046325684
+            ],
+            "Radius": 0.5
+        },
+        {
+            "MaterialIndex": 1,
+            "Position": [
+                3.0,
+                4.099999904632568,
+                4.5
+            ],
+            "Radius": 0.5
+        },
+        {
+            "MaterialIndex": 1,
+            "Position": [
+                1.7999999523162842,
+                4.900000095367432,
+                1.7000000476837158
+            ],
+            "Radius": 0.5
+        },
+        {
+            "MaterialIndex": 1,
+            "Position": [
+                0.5,
+                2.200000047683716,
+                1.7999999523162842
+            ],
+            "Radius": 0.5
+        },
+        {
+            "MaterialIndex": 1,
+            "Position": [
+                0.20000000298023224,
+                4.099999904632568,
+                1.7999999523162842
+            ],
+            "Radius": 0.5
+        },
+        {
+            "MaterialIndex": 1,
+            "Position": [
+                1.7999999523162842,
+                4.699999809265137,
+                3.5999999046325684
+            ],
+            "Radius": 0.5
+        }
+    ]
+}

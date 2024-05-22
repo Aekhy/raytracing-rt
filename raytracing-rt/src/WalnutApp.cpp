@@ -4,6 +4,7 @@
 #include "Walnut/Image.h"
 #include "Walnut/Timer.h"
 
+#include "Scene.hpp"
 #include "Camera.h"
 #include "Renderer.h"
 
@@ -91,58 +92,104 @@ public:
 
 		// Scene
 		ImGui::Begin("Scene");
-		for (size_t i = 0; i < m_Scene.Spheres.size(); ++i)
-		{
-			// too distinguish the items
-			ImGui::PushID(i);
 
-			// sphere parameters
-			Sphere& sphere = m_Scene.Spheres[i];
-			ShouldResetFrame |= ImGui::DragFloat3("Position", glm::value_ptr(sphere.Position), 0.1f);
-			ShouldResetFrame |= ImGui::DragFloat("Radius", &sphere.Radius, 0.1f, 0.0f, 100.0f);
-			ShouldResetFrame |= ImGui::SliderInt("Material", &sphere.MaterialIndex, 0, (int)m_Scene.Materials.size() - 1);
+		// Create a collapsible header for the spheres category
+		if (ImGui::CollapsingHeader("Spheres")) {
+			for (size_t i = 0; i < m_Scene.Spheres.size(); ++i) {
+				// Push a unique identifier for each sphere
+				ImGui::PushID(static_cast<int>(i));
 
-			// remove button
-			if (ImGui::Button("Remove")) {
-				m_Scene.Spheres.erase(m_Scene.Spheres.begin() + i);
+				// Begin a new tree node for each sphere
+				if (ImGui::TreeNode(("Sphere " + std::to_string(i)).c_str())) {
+					Sphere& sphere = m_Scene.Spheres[i];
+					ShouldResetFrame |= ImGui::DragFloat3("Position", glm::value_ptr(sphere.Position), 0.1f);
+					ShouldResetFrame |= ImGui::DragFloat("Radius", &sphere.Radius, 0.1f, 0.0f, 100.0f);
+					ShouldResetFrame |= ImGui::SliderInt("Material", &sphere.MaterialIndex, 0, (int)m_Scene.Materials.size() - 1);
+
+					// Remove button
+					if (ImGui::Button("Remove")) {
+						m_Scene.Spheres.erase(m_Scene.Spheres.begin() + i);
+						ImGui::PopID(); // Pop the unique identifier
+						break; // Exit loop since we modified the vector
+					}
+
+					// End the tree node for the current sphere
+					ImGui::TreePop();
+				}
+
+				// Pop the unique identifier
+				ImGui::PopID();
+			}
+		}
+
+		ImGui::End();
+
+
+
+		// load and save scene
+		ImGui::Begin("Save and load");
+
+		// Save Scene
+		ImGui::InputText("Save File Name", m_SaveFileName, sizeof(m_SaveFileName));
+		if (ImGui::Button("Save Scene")) {
+			try {
+				m_Scene.saveScene(m_SaveFileName);
+			}
+			catch (const std::exception& e) {
+				std::cerr << "Error saving scene: " << e.what() << std::endl;
+			}
+		}
+
+		ImGui::Separator();
+
+		// Load Scene
+		ImGui::InputText("Load File Name", m_LoadFileName, sizeof(m_LoadFileName));
+		if (ImGui::Button("Load Scene")) {
+			try {
+				m_Scene.loadScene(m_LoadFileName);
 				ShouldResetFrame = true;
 			}
-		
-			// separator between each spheres
-			ImGui::Separator();
-
-			ImGui::PopID();
+			catch (const std::exception& e) {
+				std::cerr << "Error loading scene: " << e.what() << std::endl;
+			}
 		}
+
 		ImGui::End();
 
 
 		// Materials
 		ImGui::Begin("Materials");
-		for (size_t i = 0; i < m_Scene.Materials.size(); ++i)
-		{
-			// too distinguish the items
-			ImGui::PushID(i);
 
-			// materials parameters
+		for (size_t i = 0; i < m_Scene.Materials.size(); ++i) {
 			Material& material = m_Scene.Materials[i];
-			ImGui::Text("Name: %s", material.Name);
-			ShouldResetFrame |= ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo));
-			ShouldResetFrame |= ImGui::DragFloat("Roughness", &material.Roughness, 0.01f, 0.0f, 1.0f);
-			ShouldResetFrame |= ImGui::DragFloat("Metallic", &material.Metallic, 0.01f, 0.0f, 1.0f);
-			ShouldResetFrame |= ImGui::ColorEdit3("Emssion color", glm::value_ptr(material.EmissionColor));
-			ShouldResetFrame |= ImGui::DragFloat("Emission power", &material.EmssionPower, 0.01f, 0.0f, FLT_MAX);
 
-			// remove button
-			if (ImGui::Button("Remove")) {
-				m_Scene.Materials.erase(m_Scene.Materials.begin() + i);
+			// Push a unique identifier for each collapsible header
+			ImGui::PushID(static_cast<int>(i));
+
+			// Create a collapsible header for each material using its index and name
+			char headerLabel[64];
+			snprintf(headerLabel, 64, "%zu - %s", i, material.Name);
+			if (ImGui::CollapsingHeader(headerLabel)) {
+				ShouldResetFrame |= ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo));
+				ShouldResetFrame |= ImGui::DragFloat("Roughness", &material.Roughness, 0.01f, 0.0f, 1.0f);
+				ShouldResetFrame |= ImGui::DragFloat("Metallic", &material.Metallic, 0.01f, 0.0f, 1.0f);
+				ShouldResetFrame |= ImGui::ColorEdit3("Emssion color", glm::value_ptr(material.EmissionColor));
+				ShouldResetFrame |= ImGui::DragFloat("Emission power", &material.EmssionPower, 0.01f, 0.0f, FLT_MAX);
+
+				// Remove button
+				if (ImGui::Button("Remove")) {
+					m_Scene.Materials.erase(m_Scene.Materials.begin() + i);
+					break; // Exit loop since we modified the vector
+				}
 			}
 
-			// separator between each spheres
-			ImGui::Separator();
-
+			// Pop the unique identifier
 			ImGui::PopID();
 		}
+
 		ImGui::End();
+
+
 
 
 		// Add Sphere
@@ -151,7 +198,7 @@ public:
 		// sphere parameters
 		ImGui::DragFloat3("Position", glm::value_ptr(PreviewSphere.Position), 0.1f);
 		ImGui::DragFloat("Radius", &PreviewSphere.Radius, 0.1f, 0.0f, 100.0f);
-		ImGui::DragInt("Material", &PreviewSphere.MaterialIndex, 1.0f, 0, (int)m_Scene.Materials.size() - 1);
+		ImGui::SliderInt("Material", &PreviewSphere.MaterialIndex, 0, (int)m_Scene.Materials.size() - 1);
 		if (ImGui::Button("Add")) {
 			m_Scene.AddSphere(PreviewSphere.Position, PreviewSphere.Radius, PreviewSphere.MaterialIndex);
 			ShouldResetFrame = true;
@@ -203,6 +250,9 @@ private:
 	Renderer m_Renderer;
 	uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
 	float m_LastRenderTime = 0.0f;
+
+	char m_SaveFileName[256] = "scene.json"; // Default file name for saving
+	char m_LoadFileName[256] = "scene.json"; // Default file name for loading
 };
 
 Walnut::Application* Walnut::CreateApplication(int argc, char** argv)

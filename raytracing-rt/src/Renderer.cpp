@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include "Renderer.h"
+#include "Scene.hpp"
 #include "Walnut/Random.h"
 #include <execution>
 
