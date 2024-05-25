@@ -81,8 +81,9 @@ public:
 			Render();
 		}
 
+		ImGui::Checkbox("Real Time", &m_RealTime);
 		ImGui::Checkbox("Accumulate", &m_Renderer.GetSettings().Accumulate);
-
+		ImGui::Text("Nb frame: %i", m_Renderer.GetFrameIndex());
 
 		ShouldResetFrame |= ImGui::Button("Reset");
 		
@@ -227,7 +228,8 @@ public:
 			m_Renderer.ResetFrameIndex();
 
 
-		Render();
+		if (m_RealTime)
+			Render();
 	}
 
 
@@ -249,7 +251,7 @@ private:
 	Renderer m_Renderer;
 	uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
 	float m_LastRenderTime = 0.0f;
-
+	bool m_RealTime = true;
 	char m_SaveFileName[256] = "scene.json"; // Default file name for saving
 	char m_LoadFileName[256] = "scene.json"; // Default file name for loading
 };

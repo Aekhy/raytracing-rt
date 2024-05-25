@@ -3,8 +3,8 @@
 #define M_PI 3.14159265358979323846  /* pi */
 
 namespace CustomRand {
-	std::mt19937 mersenneTwister;
-	std::uniform_real_distribution<double> uniform(0.0, 1.0);  // Initialize distribution
+	thread_local std::mt19937 mersenneTwister;
+	thread_local std::uniform_real_distribution<double> uniform(0.0, 1.0);  // Initialize distribution
 }
 
 

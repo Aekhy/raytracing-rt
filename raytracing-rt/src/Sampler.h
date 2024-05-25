@@ -4,8 +4,8 @@
 #include "Scene.hpp"
 
 namespace CustomRand {
-	extern std::mt19937 mersenneTwister;
-	extern std::uniform_real_distribution<double> uniform;
+	extern thread_local std::mt19937 mersenneTwister;
+	extern thread_local std::uniform_real_distribution<double> uniform;
 	#define RND (2.0*uniform(mersenneTwister)-1.0)
 	#define RND2 (uniform(mersenneTwister))
 

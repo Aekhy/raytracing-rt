@@ -31,6 +31,7 @@ public:
     }
 
     void ResetFrameIndex() { m_FrameIndex = 1; }
+    uint32_t GetFrameIndex() { return m_FrameIndex; };
 
     Settings& GetSettings() { return m_Settings; }
 

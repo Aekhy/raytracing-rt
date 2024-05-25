@@ -112,6 +112,9 @@ void Renderer::Render(const Scene& scene, const Camera& camera)
 
 
 glm::vec3 Renderer::Li(Ray ray, int bounce, glm::vec3 throughput) {
+	// no russian roulette
+	//if (bounce > 10) return glm::vec3(0);
+
 
 	HitPayload payload = TraceRay(ray);
 	
