@@ -19,6 +19,7 @@ public:
     struct Settings
     {
         bool Accumulate = true;
+        bool Antialiasing = true;
         int MonteCarloNbSample = 8;
     };
 
@@ -61,6 +62,7 @@ private:
     std::vector<uint32_t> m_ImageHorizontalIter, m_ImageVerticalIter;
     int NbMonteCarloSample;
     std::vector<int> iteratorMonteCarloSample;
+    std::vector<glm::vec2> m_AntialiasingOffset;
 
     const Scene* m_ActiveScene = nullptr;
     const Camera* m_ActiveCamera = nullptr;

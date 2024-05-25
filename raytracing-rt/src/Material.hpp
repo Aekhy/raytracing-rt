@@ -5,7 +5,8 @@
 
 enum MaterialType {
     DIFFUSE,
-    METALLIC
+    METALLIC,
+    DIELECTRIC
 };
 
 struct Material
@@ -17,6 +18,8 @@ struct Material
     glm::vec3 EmissionColor{ 0.0f };
     float EmissionPower = 0.0f;
     MaterialType Type = DIFFUSE;
+    float IndiceOut = 1.0f;
+    float IndiceIn = 1.5;
 
     glm::vec3 GetEmission() const { return EmissionPower * EmissionColor; }
 };

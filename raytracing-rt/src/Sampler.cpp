@@ -1,12 +1,18 @@
 #include "Sampler.h"
+#include "MyRand.h"
+
+#include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
+#include <glm/gtc/epsilon.hpp> 
 
 #define M_PI 3.14159265358979323846  /* pi */
 
-namespace CustomRand {
-	thread_local std::mt19937 mersenneTwister;
-	thread_local std::uniform_real_distribution<double> uniform(0.0, 1.0);  // Initialize distribution
-}
 
+bool vectorsAreEqual(const glm::vec3& v1, const glm::vec3& v2, float epsilon) {
+	return (fabs(v1.x - v2.x) < epsilon) &&
+		(fabs(v1.y - v2.y) < epsilon) &&
+		(fabs(v1.z - v2.z) < epsilon);
+}
 
 glm::vec3 Sampler::sample(glm::vec3 incomingOmega, Material material, glm::vec3 normal, glm::vec3& omega) const
 {
@@ -16,14 +22,55 @@ glm::vec3 Sampler::sample(glm::vec3 incomingOmega, Material material, glm::vec3 
 		glm::vec3 localDir = cosine_weighted_hemisphere();
 		glm::vec3 worldDir = local_to_world(localDir, normal);
 
-		float cosTheta = glm::dot(normal, worldDir);
-
-		omega = worldDir;
-		return  eval(material) / pdf(material);
+		omega = worldDir;// glm::normalize(worldDir + normal);
+		return  material.Albedo; //eval(material) / pdf(material); Pi canel out
 	}
-	else if (material.Type == METALLIC) {
+	else if (material.Type == METALLIC) 
+	{
 
-		return glm::vec3{ 0 };
+		omega = glm::reflect(incomingOmega, normal);
+		return  material.Albedo;
+	} 
+	else if (material.Type == DIELECTRIC)
+	{
+		float nt = material.IndiceIn;
+		float ni = material.IndiceOut;
+		float R0 = (ni - nt) / (ni + nt);
+		R0 = R0 * R0;
+
+		glm::vec3 N = normal;
+
+		if (glm::dot(N, incomingOmega) > 0) // from inside
+		{
+			N = N * -1.0f;
+			// swap ni, nt
+			float tmp = nt;
+			nt = ni;
+			ni = tmp;
+		}
+		float n = ni / nt;
+		float cosin = glm::dot(N, incomingOmega) * -1.0f;
+		float x = (1.0f - cosin);
+		float ReflProb = R0 + (1.0f - R0) * x * x * x * x * x;
+		float cost2 = 1.0f - n * n * (1.0f - cosin * cosin);
+
+		float rdmChoice = CustomRand::uniform_random_value();
+		if (cost2 > 0 && rdmChoice > ReflProb) // refraction
+		{
+			glm::vec3 refracted = glm::normalize((incomingOmega * n) + (N * (n * cosin - sqrt(cost2))));
+			omega = refracted;
+
+			glm::vec3 delta_direction = glm::normalize(incomingOmega) - omega;
+			return glm::vec3(1.10f);
+			
+		}
+		else
+		{
+			omega = glm::normalize((incomingOmega + N * (cosin * 2)));
+			return glm::vec3(ReflProb);;
+
+		}
+
 	}
 }
 

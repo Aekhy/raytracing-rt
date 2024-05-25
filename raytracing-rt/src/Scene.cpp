@@ -4,6 +4,19 @@
 #include <iostream>
 #include "Serialization.hpp"
 
+void Scene::AddMaterial(char* Name,
+glm::vec3 Albedo,
+float Roughness,
+float Metallic,
+glm::vec3 EmissionColor,
+float EmissionPower,
+MaterialType Type,
+float IndiceOut,
+float IndiceIn)
+{
+
+}
+
 void Scene::AddSphere(const glm::vec3& position, float radius, int materialIndex)
 {
     AddSphere(Sphere{ position, radius, materialIndex });

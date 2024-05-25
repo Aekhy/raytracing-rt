@@ -19,8 +19,9 @@ public:
 	ExampleLayer()
 		: m_Camera(45.0f, 0.1f, 100.0f) 
 	{
+
 		// Materials
-		/*
+		
 		
 		Material& whiteMatte = m_Scene.Materials.emplace_back();
 		whiteMatte.Name = "White Matte";
@@ -37,6 +38,7 @@ public:
 		blueMatte.Albedo = { 0.0f, 1.0f, 1.0f };
 
 		Material& mirror = m_Scene.Materials.emplace_back();
+		mirror.Type = METALLIC;
 		mirror.Name = "Mirror";
 		mirror.Roughness = 0.04f;
 		mirror.Metallic = 1.0f;
@@ -48,6 +50,12 @@ public:
 		emissive.EmissionColor = emissive.Albedo;
 		emissive.EmissionPower = 2.0f;
 
+		Material& glass = m_Scene.Materials.emplace_back();
+		glass.Type = DIELECTRIC;
+		glass.Name = "Glass";
+		glass.IndiceOut = 1.0f;
+		glass.IndiceIn = 1.5f;
+		/*
 		// Spheres
 		
 		// pink sphere
@@ -85,6 +93,7 @@ public:
 
 		ImGui::Checkbox("Real Time", &m_RealTime);
 		ImGui::Checkbox("Accumulate", &m_Renderer.GetSettings().Accumulate);
+		ImGui::Checkbox("Antialiasing", &m_Renderer.GetSettings().Antialiasing);
 		ImGui::SliderInt("Monter Carlo nb sample", &m_Renderer.GetSettings().MonteCarloNbSample, 1, 2048);
 		ImGui::Text("Nb frame: %i", m_Renderer.GetFrameIndex());
 
@@ -178,7 +187,8 @@ public:
 				ShouldResetFrame |= ImGui::DragFloat("Metallic", &material.Metallic, 0.01f, 0.0f, 1.0f);
 				ShouldResetFrame |= ImGui::ColorEdit3("Emssion color", glm::value_ptr(material.EmissionColor));
 				ShouldResetFrame |= ImGui::DragFloat("Emission power", &material.EmissionPower, 0.01f, 0.0f, FLT_MAX);
-
+				ShouldResetFrame |= ImGui::DragFloat("Indice in", &material.IndiceIn, 0.01f, 0.0f, 2.0f);
+				ShouldResetFrame |= ImGui::DragFloat("Indice out", &material.IndiceOut, 0.01f, 0.0f, 2.0f);
 				// Remove button
 				if (ImGui::Button("Remove")) {
 					m_Scene.Materials.erase(m_Scene.Materials.begin() + i);
@@ -207,6 +217,34 @@ public:
 			ShouldResetFrame = true;
 		}
 		
+		ImGui::End();
+
+		// Add Material
+		ImGui::Begin("Add Material");
+
+		// material parameters
+		ImGui::InputText("Material name", m_BaseInput, sizeof(m_BaseInput));
+		ImGui::DragInt("Material type", reinterpret_cast<int*>(&PreviewMaterial.Type), 1.0f, DIFFUSE, DIELECTRIC);
+		ImGui::ColorEdit3("Albedo", glm::value_ptr(PreviewMaterial.Albedo));
+		ImGui::DragFloat("Roughness", &PreviewMaterial.Roughness, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Metallic", &PreviewMaterial.Metallic, 0.01f, 0.0f, 1.0f);
+		ImGui::ColorEdit3("Emssion color", glm::value_ptr(PreviewMaterial.EmissionColor));
+		ImGui::DragFloat("Emission power", &PreviewMaterial.EmissionPower, 0.01f, 0.0f, FLT_MAX);
+		ImGui::DragFloat("Indice in", &PreviewMaterial.IndiceIn, 0.01f, 0.0f, 2.0f);
+		ImGui::DragFloat("Indice out", &PreviewMaterial.IndiceOut, 0.01f, 0.0f, 2.0f);
+		if (ImGui::Button("Add")) {
+			m_Scene.AddMaterial(m_BaseInput,
+				PreviewMaterial.Albedo,
+				PreviewMaterial.Roughness,
+				PreviewMaterial.Metallic,
+				PreviewMaterial.EmissionColor,
+				PreviewMaterial.EmissionPower,
+				PreviewMaterial.Type,
+				PreviewMaterial.IndiceOut,
+				PreviewMaterial.IndiceIn);
+			ShouldResetFrame = true;
+		}
+
 		ImGui::End();
 
 
@@ -250,11 +288,13 @@ public:
 private:
 	Scene m_Scene;
 	Sphere PreviewSphere;
+	Material PreviewMaterial;
 	Camera m_Camera;
 	Renderer m_Renderer;
 	uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
 	float m_LastRenderTime = 0.0f;
 	bool m_RealTime = true;
+	char m_BaseInput[101] = "100 char name";
 	char m_SaveFileName[256] = "scene.json"; // Default file name for saving
 	char m_LoadFileName[256] = "scene.json"; // Default file name for loading
 };

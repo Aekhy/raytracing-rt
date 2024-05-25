@@ -5,6 +5,7 @@
 #include <execution>
 #include <glm/gtx/component_wise.hpp>
 #include "Sampler.h"
+#include "MyRand.h"
 
 #define eps 0.0001f
 #define M_PI 3.14159265358979323846  /* pi */
@@ -52,6 +53,7 @@ void Renderer::OnResize(uint32_t width, uint32_t height) {
 		m_ImageHorizontalIter[i] = i;
 	for (uint32_t i = 0; i < height; ++i)
 		m_ImageVerticalIter[i] = i;
+
 }
 
 void Renderer::Render(const Scene& scene, const Camera& camera)
@@ -59,15 +61,26 @@ void Renderer::Render(const Scene& scene, const Camera& camera)
 	m_ActiveScene = &scene;
 	m_ActiveCamera = &camera;
 
+	const int N_MC = GetSettings().MonteCarloNbSample;
+
 	if (m_FrameIndex == 1)
 		memset(m_AccumulationData, 0, m_FinalImage->GetWidth() * m_FinalImage->GetHeight() * sizeof(glm::vec4));
 
-
+	// prepare some random offset for antialiasing
+	if (GetSettings().Antialiasing) 
+	{
+		m_AntialiasingOffset.resize(GetSettings().MonteCarloNbSample);
+		for (int i = 0; i < N_MC; ++i) {
+			m_AntialiasingOffset[i].x = CustomRand::uniform_random_value() - 0.5f;
+			m_AntialiasingOffset[i].y = CustomRand::uniform_random_value() - 0.5f;
+		}
+	}
+	
 	std::for_each(std::execution::par, m_ImageVerticalIter.begin(), m_ImageVerticalIter.end(),
-		[this](uint32_t y)
+		[this, N_MC](uint32_t y)
 		{
 			std::for_each(std::execution::par, m_ImageHorizontalIter.begin(), m_ImageHorizontalIter.end(),
-			[this, y](uint32_t x)
+			[this, y, N_MC](uint32_t x)
 				{
 					int index = x + y * m_FinalImage->GetWidth();
 
@@ -76,14 +89,24 @@ void Renderer::Render(const Scene& scene, const Camera& camera)
 
 					// monte carlo
 					glm::vec3 radiance{0};
-					for (int i = 0; i < GetSettings().MonteCarloNbSample; ++i)
+					for (int i = 0; i < N_MC; ++i)
 					{
 						Ray ray;
 						ray.Origin = m_ActiveCamera->GetPosition();
 						ray.Direction = m_ActiveCamera->GetRayDirections()[x + y * m_FinalImage->GetWidth()];
+
+						if (GetSettings().Antialiasing)
+						{
+							// Generate small random offsets for anti-aliasing
+							// avoid for randering new offset point for each pixel, it's new at each frame
+							float offsetX = m_AntialiasingOffset[i].x / m_ActiveCamera->GetViewportWidth();
+							float offsetY = m_AntialiasingOffset[i].y / m_ActiveCamera->GetViewportHeight();
+							ray.Direction += offsetX * glm::cross(m_ActiveCamera->GetDirection(), glm::vec3(0.0f, 1.0f, 0.0f)) + offsetY * glm::vec3(0.0f, 1.0f, 0.0f);
+						}
+						
 						radiance += Li(ray, 0, glm::vec3{1.0f});
 					}
-					radiance /= GetSettings().MonteCarloNbSample;
+					radiance /= N_MC;
 					
 					glm::vec4 color(radiance, 1);
 					m_AccumulationData[index] += color;
@@ -93,10 +116,23 @@ void Renderer::Render(const Scene& scene, const Camera& camera)
 
 					accumulatedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
 					m_ImageData[index] = Utils::ConvertToRGBA(accumulatedColor);
+
 				});
 		});
-
+	/*
+	float Lavg = 0.0f;
 	
+	for (auto y = 0; y < m_FinalImage->GetHeight(); ++y) {
+		for (auto x = 0; x < m_FinalImage->GetWidth(); ++x) {
+			int index = x + y * m_FinalImage->GetWidth();
+
+			glm::vec4 accumulatedColor = m_AccumulationData[index];
+			accumulatedColor /= (float)m_FrameIndex;
+
+			Lavg += log()
+		}
+	}
+	*/
 	m_FinalImage->SetData(m_ImageData);
 
 	if (m_Settings.Accumulate)
