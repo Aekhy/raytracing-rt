@@ -18,7 +18,7 @@ class Sampler
 {
 public:
 	// get omega and brdf multiplier
-	glm::vec3 sample(Material material, glm::vec3 normal, glm::vec3 omega) const;
+	glm::vec3 sample(glm::vec3 incomingOmega, Material material, glm::vec3 normal, glm::vec3& omega) const;
 
 	// Helpers for random number generation
 	glm::vec3 cosine_weighted_hemisphere() const;

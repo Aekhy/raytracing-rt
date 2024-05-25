@@ -11,10 +11,11 @@
                 0.0,
                 0.0
             ],
-            "EmssionPower": 0.0,
+            "EmissionPower": 0.0,
             "Metallic": 0.0,
             "Name": "White Matte",
-            "Roughness": 0.800000011920929
+            "Roughness": 0.800000011920929,
+            "Type": 0
         },
         {
             "Albedo": [
@@ -27,10 +28,11 @@
                 0.0,
                 0.0
             ],
-            "EmssionPower": 0.0,
+            "EmissionPower": 0.0,
             "Metallic": 0.0,
             "Name": "Pink Matte",
-            "Roughness": 0.800000011920929
+            "Roughness": 0.800000011920929,
+            "Type": 0
         },
         {
             "Albedo": [
@@ -43,10 +45,11 @@
                 0.0,
                 0.0
             ],
-            "EmssionPower": 0.0,
+            "EmissionPower": 0.0,
             "Metallic": 0.0,
             "Name": "Blue Matte",
-            "Roughness": 0.800000011920929
+            "Roughness": 0.800000011920929,
+            "Type": 0
         },
         {
             "Albedo": [
@@ -59,10 +62,11 @@
                 0.0,
                 0.0
             ],
-            "EmssionPower": 0.0,
+            "EmissionPower": 0.0,
             "Metallic": 1.0,
             "Name": "Mirror",
-            "Roughness": 0.03999999910593033
+            "Roughness": 0.03999999910593033,
+            "Type": 0
         },
         {
             "Albedo": [
@@ -75,10 +79,11 @@
                 0.5,
                 0.20000000298023224
             ],
-            "EmssionPower": 2.0,
+            "EmissionPower": 2.0,
             "Metallic": 0.0,
             "Name": "Emissive",
-            "Roughness": 0.10000000149011612
+            "Roughness": 0.10000000149011612,
+            "Type": 0
         }
     ],
     "Spheres": [

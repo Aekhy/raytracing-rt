@@ -76,15 +76,14 @@ void Renderer::Render(const Scene& scene, const Camera& camera)
 
 					// monte carlo
 					glm::vec3 radiance{0};
-					const int N = 8;
-					for (int i = 0; i < N; ++i)
+					for (int i = 0; i < GetSettings().MonteCarloNbSample; ++i)
 					{
 						Ray ray;
 						ray.Origin = m_ActiveCamera->GetPosition();
 						ray.Direction = m_ActiveCamera->GetRayDirections()[x + y * m_FinalImage->GetWidth()];
 						radiance += Li(ray, 0, glm::vec3{1.0f});
 					}
-					radiance /= N;
+					radiance /= GetSettings().MonteCarloNbSample;
 					
 					glm::vec4 color(radiance, 1);
 					m_AccumulationData[index] += color;
@@ -115,11 +114,11 @@ glm::vec3 Renderer::Li(Ray ray, int bounce, glm::vec3 throughput) {
 	// no russian roulette
 	//if (bounce > 10) return glm::vec3(0);
 
-
 	HitPayload payload = TraceRay(ray);
 	
 	if (payload.HitDistance < eps) {
 		return glm::vec3(0.5f, 0.6f, 0.8f);
+		return glm::vec3{ 0 };
 	}
 
 	const Sphere& sphere = m_ActiveScene->Spheres[payload.ObjectIndex];
@@ -139,23 +138,12 @@ glm::vec3 Renderer::Li(Ray ray, int bounce, glm::vec3 throughput) {
 
 	if (CustomRand::uniform_random_value() >= rr_prob) return radiance;
 
-	// Sample new direction on the hemisphere
-	glm::vec3 localDir = sampler.cosine_weighted_hemisphere();
-	glm::vec3 worldDir = sampler.local_to_world(localDir, payload.WorldNormal);
-
-	// Create new ray
+	
 	Ray newRay;
 	newRay.Origin = payload.WorldPosition; // +0.0001f * payload.WorldNormal;
-	newRay.Direction = worldDir;
-
-
-	glm::vec3 brdf = material.Albedo / (float)M_PI;
-	float cosTheta = glm::dot(payload.WorldNormal, worldDir);
-	float pdf = cosTheta / M_PI;
-	throughput *= brdf * cosTheta / (pdf * rr_prob);
-
-	// Recursive call
-	radiance += brdf * Li(newRay, bounce + 1, throughput) * cosTheta / (pdf * rr_prob);
+	glm::vec3 brdfmultiplier = sampler.sample(ray.Direction, material, payload.WorldNormal, newRay.Direction);
+	throughput *= brdfmultiplier / rr_prob;
+	radiance += brdfmultiplier * Li(newRay, bounce + 1, throughput) / rr_prob;
 
 	return radiance;
 }

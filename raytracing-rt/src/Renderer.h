@@ -19,6 +19,7 @@ public:
     struct Settings
     {
         bool Accumulate = true;
+        int MonteCarloNbSample = 8;
     };
 
     Renderer() = default;

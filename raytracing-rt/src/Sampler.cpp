@@ -8,7 +8,7 @@ namespace CustomRand {
 }
 
 
-glm::vec3 Sampler::sample(Material material, glm::vec3 normal, glm::vec3 omega) const
+glm::vec3 Sampler::sample(glm::vec3 incomingOmega, Material material, glm::vec3 normal, glm::vec3& omega) const
 {
 	if (material.Type == DIFFUSE) {
 		
@@ -19,7 +19,11 @@ glm::vec3 Sampler::sample(Material material, glm::vec3 normal, glm::vec3 omega) 
 		float cosTheta = glm::dot(normal, worldDir);
 
 		omega = worldDir;
-		return cosTheta * eval(material) / pdf(material);
+		return  eval(material) / pdf(material);
+	}
+	else if (material.Type == METALLIC) {
+
+		return glm::vec3{ 0 };
 	}
 }
 
@@ -28,12 +32,18 @@ glm::vec3 Sampler::eval(Material material) const
 	if (material.Type == DIFFUSE) {
 		return material.Albedo /(float) M_PI;
 	}
+	else if (material.Type == METALLIC) {
+		return glm::vec3{ 0 };
+	}
 }
 
 float Sampler::pdf(Material material) const
 {
 	if (material.Type == DIFFUSE) {
 		return 1.0f / (float)M_PI;
+	}
+	else if (material.Type == METALLIC) {
+		return 0.0f;
 	}
 
 

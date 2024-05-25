@@ -4,7 +4,8 @@
 #include "include/json.hpp"
 
 enum MaterialType {
-    DIFFUSE
+    DIFFUSE,
+    METALLIC
 };
 
 struct Material

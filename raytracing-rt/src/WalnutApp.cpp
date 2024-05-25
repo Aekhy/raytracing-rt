@@ -20,6 +20,8 @@ public:
 		: m_Camera(45.0f, 0.1f, 100.0f) 
 	{
 		// Materials
+		/*
+		
 		Material& whiteMatte = m_Scene.Materials.emplace_back();
 		whiteMatte.Name = "White Matte";
 		whiteMatte.Roughness = 0.8f;
@@ -60,7 +62,7 @@ public:
 
 		// emssive
 		m_Scene.AddSphere({ 1.0f, 0.5f, 0.0f }, 0.5f, 4);
-
+		*/
 
 	}
 
@@ -83,6 +85,7 @@ public:
 
 		ImGui::Checkbox("Real Time", &m_RealTime);
 		ImGui::Checkbox("Accumulate", &m_Renderer.GetSettings().Accumulate);
+		ImGui::SliderInt("Monter Carlo nb sample", &m_Renderer.GetSettings().MonteCarloNbSample, 1, 2048);
 		ImGui::Text("Nb frame: %i", m_Renderer.GetFrameIndex());
 
 		ShouldResetFrame |= ImGui::Button("Reset");
