@@ -36,7 +36,6 @@ public:
 
 		Material& mirror = m_Scene.Materials.emplace_back();
 		mirror.Name = "Mirror";
-		mirror.Albedo = { 0.0f, 0.0f, 0.0f };
 		mirror.Roughness = 0.04f;
 		mirror.Metallic = 1.0f;
 
@@ -45,7 +44,7 @@ public:
 		emissive.Albedo = { 0.8f, 0.5f, 0.2f };
 		emissive.Roughness = 0.1f;
 		emissive.EmissionColor = emissive.Albedo;
-		emissive.EmssionPower = 2.0f;
+		emissive.EmissionPower = 2.0f;
 
 		// Spheres
 		
@@ -174,7 +173,7 @@ public:
 				ShouldResetFrame |= ImGui::DragFloat("Roughness", &material.Roughness, 0.01f, 0.0f, 1.0f);
 				ShouldResetFrame |= ImGui::DragFloat("Metallic", &material.Metallic, 0.01f, 0.0f, 1.0f);
 				ShouldResetFrame |= ImGui::ColorEdit3("Emssion color", glm::value_ptr(material.EmissionColor));
-				ShouldResetFrame |= ImGui::DragFloat("Emission power", &material.EmssionPower, 0.01f, 0.0f, FLT_MAX);
+				ShouldResetFrame |= ImGui::DragFloat("Emission power", &material.EmissionPower, 0.01f, 0.0f, FLT_MAX);
 
 				// Remove button
 				if (ImGui::Button("Remove")) {

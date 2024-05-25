@@ -3,8 +3,16 @@
 #include "Scene.hpp"
 #include "Walnut/Random.h"
 #include <execution>
+#include <glm/gtx/component_wise.hpp>
+#include "Sampler.h"
+
+#define eps 0.0001f
+#define M_PI 3.14159265358979323846  /* pi */
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
 
 namespace Utils {
+
 	static uint32_t ConvertToRGBA(const glm::vec4 color)
 	{
 		uint8_t r = (color.r * 255.0f);
@@ -63,7 +71,22 @@ void Renderer::Render(const Scene& scene, const Camera& camera)
 				{
 					int index = x + y * m_FinalImage->GetWidth();
 
-					glm::vec4 color = PerPixel(x, y);
+					//glm::vec4 color = PerPixel(x, y);
+
+
+					// monte carlo
+					glm::vec3 radiance{0};
+					const int N = 8;
+					for (int i = 0; i < N; ++i)
+					{
+						Ray ray;
+						ray.Origin = m_ActiveCamera->GetPosition();
+						ray.Direction = m_ActiveCamera->GetRayDirections()[x + y * m_FinalImage->GetWidth()];
+						radiance += Li(ray, 0, glm::vec3{1.0f});
+					}
+					radiance /= N;
+					
+					glm::vec4 color(radiance, 1);
 					m_AccumulationData[index] += color;
 
 					glm::vec4 accumulatedColor = m_AccumulationData[index];
@@ -87,6 +110,55 @@ void Renderer::Render(const Scene& scene, const Camera& camera)
 	}
 }
 
+
+glm::vec3 Renderer::Li(Ray ray, int bounce, glm::vec3 throughput) {
+
+	HitPayload payload = TraceRay(ray);
+	
+	if (payload.HitDistance < eps) {
+		return glm::vec3(0.5f, 0.6f, 0.8f);
+	}
+
+	const Sphere& sphere = m_ActiveScene->Spheres[payload.ObjectIndex];
+	const Material& material = m_ActiveScene->Materials[sphere.MaterialIndex];
+
+	glm::vec3 radiance = material.GetEmission();
+
+	const int MIN_BOUNCES = 3;
+	float rr_prob;
+	if (bounce < MIN_BOUNCES) {
+		rr_prob = 1.0f;
+	}
+	else {
+		rr_prob = MAX(MAX(throughput.x, throughput.y), throughput.z);
+		rr_prob = glm::clamp(rr_prob, 0.0f, 0.99f);
+	}
+
+	if (CustomRand::uniform_random_value() >= rr_prob) return radiance;
+
+	// Sample new direction on the hemisphere
+	glm::vec3 localDir = sampler.cosine_weighted_hemisphere();
+	glm::vec3 worldDir = sampler.local_to_world(localDir, payload.WorldNormal);
+
+	// Create new ray
+	Ray newRay;
+	newRay.Origin = payload.WorldPosition; // +0.0001f * payload.WorldNormal;
+	newRay.Direction = worldDir;
+
+
+	glm::vec3 brdf = material.Albedo / (float)M_PI;
+	float cosTheta = glm::dot(payload.WorldNormal, worldDir);
+	float pdf = cosTheta / M_PI;
+	throughput *= brdf * cosTheta / (pdf * rr_prob);
+
+	// Recursive call
+	radiance += brdf * Li(newRay, bounce + 1, throughput) * cosTheta / (pdf * rr_prob);
+
+	return radiance;
+}
+
+
+
 glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y)
 {
 	Ray ray;
@@ -97,7 +169,7 @@ glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y)
 	// placeholder to not get something too bright
 	glm::vec3 contribution{ 1.0f };
 
-	int bounces = 10;
+	int bounces = 2000;
 	for (int i = 0; i < bounces; ++i)
 	{
 		// object intersection
@@ -112,16 +184,16 @@ glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y)
 		}
 			
 		// lighting
-		// glm::vec3 lightDirection = glm::normalize(glm::vec3(-1, -1, -1));
-		// float d = glm::max(glm::dot(payload.WorldNormal, -lightDirection), 0.0f);
+		//glm::vec3 lightDirection = glm::normalize(glm::vec3(-1, -1, -1));
+		//float d = glm::max(glm::dot(payload.WorldNormal, -lightDirection), 0.0f);
 
 		const Sphere& sphere = m_ActiveScene->Spheres[payload.ObjectIndex];
 		const Material& material = m_ActiveScene->Materials[sphere.MaterialIndex];
 
 		contribution *= material.Albedo;
-		light += material.GetEmssision() * material.Albedo;
+		light += material.GetEmission() * material.Albedo;
 
-		ray.Origin = payload.WorldPosition + 0.0001f * payload.WorldNormal;
+		ray.Origin = payload.WorldPosition; //+ 0.0001f * payload.WorldNormal;
 
 		ray.Direction = glm::normalize(payload.WorldNormal + Walnut::Random::InUnitSphere());
 	
@@ -151,10 +223,10 @@ Renderer::HitPayload Renderer::TraceRay(const Ray& ray)
 
 		float t1 = (-b - glm::sqrt(discriminant)) / (2.0f * a);
 
-		if (t1 < 0.0f)
+		if (t1 < eps)
 		{
 			t1 = (-b + glm::sqrt(discriminant)) / (2.0f * a);
-			if (t1 < 0.0f) {
+			if (t1 < eps) {
 				continue;
 			}
 		}

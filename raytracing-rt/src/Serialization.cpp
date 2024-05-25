@@ -7,7 +7,8 @@ void to_json(nlohmann::json& j, const Material& m) {
         {"Roughness", m.Roughness},
         {"Metallic", m.Metallic},
         {"EmissionColor", {m.EmissionColor.x, m.EmissionColor.y, m.EmissionColor.z}},
-        {"EmssionPower", m.EmssionPower}
+        {"EmissionPower", m.EmissionPower},
+        {"Type", m.Type}
     };
 }
 
@@ -22,7 +23,8 @@ void from_json(const nlohmann::json& j, Material& m) {
     m.Metallic = j.at("Metallic").get<float>();
     auto emissionColor = j.at("EmissionColor").get<std::vector<float>>();
     m.EmissionColor = glm::vec3(emissionColor[0], emissionColor[1], emissionColor[2]);
-    m.EmssionPower = j.at("EmssionPower").get<float>();
+    m.EmissionPower = j.at("EmissionPower").get<float>();
+    m.Type = j.at("Type").get<MaterialType>();
 }
 
 void to_json(nlohmann::json& j, const Sphere& s) {
