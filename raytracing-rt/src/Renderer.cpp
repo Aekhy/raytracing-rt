@@ -7,6 +7,8 @@
 #include "Sampler.h"
 #include "MyRand.h"
 
+#include <iostream>
+
 #define eps 0.0001f
 #define M_PI 3.14159265358979323846  /* pi */
 #define MIN(a,b) (((a)<(b))?(a):(b))
@@ -14,15 +16,148 @@
 
 namespace Utils {
 
+
+	glm::vec3 backgroundColor(const Ray& ray, const Cubemap& Cubemap)
+	{
+		if (!Cubemap.exist) {
+			return glm::vec3(0.5f, 0.6f, 0.8f);
+		}
+		// with sky box :
+
+		// get the face
+
+		float X = ray.Direction.x;
+		float Y = ray.Direction.y;
+		float Z = ray.Direction.z;
+		float abs_x = abs(X);
+		float abs_y = abs(Y);
+		float abs_z = abs(Z);
+		float coo = std::max(std::max(abs_x, abs_y), abs_z);
+
+		glm::vec3 red = glm::vec3(1.0f, 0.0f, 0.0f);
+		glm::vec3 green = glm::vec3(0.0f, 1.0f, 0.0f);
+		glm::vec3 blue = glm::vec3(0.0f, 0.0f, 1.0f);
+		glm::vec3 yellow = glm::vec3(1.0f, 1.0f, 0.0f);
+		glm::vec3 magenta = glm::vec3(1.0f, 0.0f, 1.0f);
+		glm::vec3 cyan = glm::vec3(0.0f, 1.0f, 1.0f);
+		glm::vec3 res;
+
+		// coo in the square
+		float u;
+		float v;
+
+		// get the square of the cross image
+		int offset_x;
+		int offset_y;
+
+		int square_size_x = Cubemap.width / 4;
+		int square_size_y = Cubemap.height / 3;
+
+		// to range between -1 and 1
+		float x = X / coo;
+		float y = Y / coo;
+		float z = Z / coo;
+
+		if (coo == Y)
+		{
+			// top
+			u = fmod((x + 1.0f), 2.0f) / 2.0f;
+			v = fmod((1.0f - z), 2.0f) / 2.0f;
+			offset_x = 1;
+			offset_y = 0;
+			res = blue;
+		}
+		else if (coo == -Y)
+		{
+			// bottom
+			u = fmod((x + 1.0f), 2.0f) / 2.0f;
+			v = fmod((z + 1.0f), 2.0f) / 2.0f;
+			offset_x = 1;
+			offset_y = 2;
+			res = magenta;
+		}
+		else if (coo == Z)
+		{
+			// front
+			u = fmod((x + 1.0f), 2.0f) / 2.0f;
+			v = fmod((y + 1.0f), 2.0f) / 2.0f;
+			offset_x = 1;
+			offset_y = 1;
+			res = green;
+		}
+		else if (coo == -Z)
+		{
+			// back
+			u = fmod((1.0f - x), 2.0f) / 2.0f;
+			v = fmod((y + 1.0f), 2.0f) / 2.0f;
+			offset_x = 3;
+			offset_y = 1;
+			res = cyan;
+		}
+		else if (coo == X)
+		{
+			// right
+			u = fmod((1.0f - z), 2.0f) / 2.0f;
+			v = fmod((y + 1.0f), 2.0f) / 2.0f;
+			offset_x = 2;
+			offset_y = 1;
+			res = red;
+		}
+		else
+		{
+			// left
+			u = fmod((z + 1.0f), 2.0f) / 2.0f;
+			v = fmod((y + 1.0f), 2.0f) / 2.0f;
+			offset_x = 0;
+			offset_y = 1;
+			res = yellow;
+		}
+
+		v = 1.0f - v;
+
+		offset_x *= square_size_x;
+		offset_y *= square_size_y;
+
+		// offset_x = 2 * square_size_x;
+		// offset_y = 1 * square_size_y;
+
+		int pixel_x = square_size_x * u + offset_x;
+		int pixel_y = square_size_y * v + offset_y;
+		int index = (pixel_y * Cubemap.width + pixel_x) * Cubemap.nchannel;
+
+		// Ensure index is within bounds
+		int maxIndex = Cubemap.width * Cubemap.height * Cubemap.nchannel;
+		if (index < 0 || index + 2 >= maxIndex) {
+			return glm::vec3(1.0f); // Return magenta color for error
+		}
+
+		float r = Cubemap.data[index] / 255.0f;
+		float g = Cubemap.data[index + 1] / 255.0f;
+		float b = Cubemap.data[index + 2] / 255.0f;
+		return glm::vec3(r, g, b);
+
+	}
+
+
+
 	static uint32_t ConvertToRGBA(const glm::vec4 color)
 	{
-		uint8_t r = (color.r * 255.0f);
-		uint8_t g = (color.g * 255.0f);
-		uint8_t b = (color.b * 255.0f);
+		uint8_t r = (sqrtf(color.r) * 255.0f);
+		uint8_t g = (sqrtf(color.g) * 255.0f);
+		uint8_t b = (sqrtf(color.b) * 255.0f);
+		//uint8_t r = (color.r * 255.0f);
+		//uint8_t g = (color.g * 255.0f);
+		//uint8_t b = (color.b * 255.0f);
 		uint8_t a = (color.a * 255.0f);
 
 		uint32_t result = (a << 24) | (b << 16) | (g << 8) | r;
 		return result;
+	}
+
+
+	glm::vec4 SchlickUniformRationalQuantization(const glm::vec3& radiance, float maxRadiance) {
+		float L = glm::compMax(radiance) / (1.0f + maxRadiance);
+		return glm::vec4(radiance * (1.0f / (1.0f + maxRadiance)), 1.0f);
 	}
 }
 
@@ -76,6 +211,7 @@ void Renderer::Render(const Scene& scene, const Camera& camera)
 		}
 	}
 	
+
 	std::for_each(std::execution::par, m_ImageVerticalIter.begin(), m_ImageVerticalIter.end(),
 		[this, N_MC](uint32_t y)
 		{
@@ -85,7 +221,6 @@ void Renderer::Render(const Scene& scene, const Camera& camera)
 					int index = x + y * m_FinalImage->GetWidth();
 
 					//glm::vec4 color = PerPixel(x, y);
-
 
 					// monte carlo
 					glm::vec3 radiance{0};
@@ -113,26 +248,14 @@ void Renderer::Render(const Scene& scene, const Camera& camera)
 
 					glm::vec4 accumulatedColor = m_AccumulationData[index];
 					accumulatedColor /= (float)m_FrameIndex;
-
 					accumulatedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
+					
 					m_ImageData[index] = Utils::ConvertToRGBA(accumulatedColor);
 
 				});
 		});
-	/*
-	float Lavg = 0.0f;
 	
-	for (auto y = 0; y < m_FinalImage->GetHeight(); ++y) {
-		for (auto x = 0; x < m_FinalImage->GetWidth(); ++x) {
-			int index = x + y * m_FinalImage->GetWidth();
-
-			glm::vec4 accumulatedColor = m_AccumulationData[index];
-			accumulatedColor /= (float)m_FrameIndex;
-
-			Lavg += log()
-		}
-	}
-	*/
+	
 	m_FinalImage->SetData(m_ImageData);
 
 	if (m_Settings.Accumulate)
@@ -153,8 +276,8 @@ glm::vec3 Renderer::Li(Ray ray, int bounce, glm::vec3 throughput) {
 	HitPayload payload = TraceRay(ray);
 	
 	if (payload.HitDistance < eps) {
-		return glm::vec3(0.5f, 0.6f, 0.8f);
-		return glm::vec3{ 0 };
+		return Utils::backgroundColor(ray, m_ActiveScene->Cubemap);
+		//return glm::vec3{ 1.0f };
 	}
 
 	const Sphere& sphere = m_ActiveScene->Spheres[payload.ObjectIndex];

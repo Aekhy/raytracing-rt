@@ -12,6 +12,21 @@
 
 using namespace Walnut;
 
+namespace fs = std::filesystem;
+
+std::vector<std::string> GetCubemapFilenames(const std::string& folderPath) {
+	std::vector<std::string> filenames;
+	if (fs::exists(folderPath) && fs::is_directory(folderPath)) {
+		for (const auto& entry : fs::directory_iterator(folderPath)) {
+			if (entry.is_regular_file()) {
+				filenames.push_back(entry.path().filename().string());
+			}
+		}
+	}
+	return filenames;
+}
+
+
 class ExampleLayer : public Walnut::Layer
 {
 public:
@@ -19,7 +34,12 @@ public:
 	ExampleLayer()
 		: m_Camera(45.0f, 0.1f, 100.0f) 
 	{
+		m_Scene.Cubemap.exist = false;
+		m_Scene.pass = false;
 
+		m_CubeMapFolderExist = fs::exists("./cubemaps") && fs::is_directory("./cubemaps");
+		if (m_CubeMapFolderExist)
+			m_CubeMapNames = GetCubemapFilenames("./cubemaps");
 		// Materials
 		
 		
@@ -169,6 +189,53 @@ public:
 		ImGui::End();
 
 
+		// Cube map
+		static int selectedFileIndex = -1; // No file selected initially
+
+		ImGui::Begin("Cube Maps");
+
+
+		// Add a button to refresh the list of cubemap filenames
+		if (ImGui::Button("Refresh")) {
+			m_CubeMapFolderExist = fs::exists("./cubemaps") && fs::is_directory("./cubemaps");
+			if (m_CubeMapFolderExist) {
+				m_CubeMapNames = GetCubemapFilenames("./cubemap");
+				selectedFileIndex = -1; // Reset the selected file index
+			}
+			else {
+				m_CubeMapNames.clear();
+			}
+		}
+
+		if (m_CubeMapFolderExist) {
+			// Display the filenames in a combo box
+			if (ImGui::BeginCombo("Cube map", selectedFileIndex >= 0 ? m_CubeMapNames[selectedFileIndex].c_str() : "Select a file")) {
+				for (int i = 0; i < m_CubeMapNames.size(); ++i) {
+					bool isSelected = (selectedFileIndex == i);
+					if (ImGui::Selectable(m_CubeMapNames[i].c_str(), isSelected)) {
+						selectedFileIndex = i;
+					}
+					if (isSelected) {
+						ImGui::SetItemDefaultFocus();
+					}
+				}
+				ImGui::EndCombo();
+			}
+
+			// Add a button to load the selected cubemap
+			if (ImGui::Button("Load cube map")  && selectedFileIndex >= 0) {
+				std::string selectedFilename = m_CubeMapNames[selectedFileIndex];
+				const char* filename = selectedFilename.c_str();
+				m_Scene.loadCubemap(filename);
+			}
+		}
+		else {
+			ImGui::Text("Cubemap folder does not exist.");
+		}
+
+		ImGui::End();
+
+
 		// Materials
 		ImGui::Begin("Materials");
 
@@ -297,6 +364,9 @@ private:
 	char m_BaseInput[101] = "100 char name";
 	char m_SaveFileName[256] = "scene.json"; // Default file name for saving
 	char m_LoadFileName[256] = "scene.json"; // Default file name for loading
+
+	bool m_CubeMapFolderExist;
+	std::vector<std::string> m_CubeMapNames;
 };
 
 Walnut::Application* Walnut::CreateApplication(int argc, char** argv)

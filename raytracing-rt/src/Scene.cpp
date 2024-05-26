@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include "Serialization.hpp"
+#include "include/stb_image.h"
 
 void Scene::AddMaterial(char* Name,
 glm::vec3 Albedo,
@@ -50,7 +51,38 @@ void Scene::saveScene(const std::string& filename) const {
     }
 }
 
+void Scene::loadCubemap(const char * filename)
+{
+
+    std::filesystem::path cubemapsFolder = std::filesystem::current_path() / "cubemaps";
+    std::filesystem::path fullPath = cubemapsFolder / filename;
+
+    // Ensure the scenes directory exists
+    if (!std::filesystem::exists(cubemapsFolder)) {
+        std::filesystem::create_directories(cubemapsFolder);
+        Cubemap.exist = false;
+        return ;
+    }
+
+    std::string fullPathStr = fullPath.string();
+    const char* fullPathCStr = fullPathStr.c_str();
+
+
+    int n, ok;
+    ok = stbi_info(fullPathCStr, &Cubemap.width, &Cubemap.height, &Cubemap.nchannel);
+    if (ok) {
+        Cubemap.data = stbi_load(fullPathCStr, &Cubemap.width, &Cubemap.height, &Cubemap.nchannel, 0);
+        Cubemap.exist = true;
+    }
+    else {
+        Cubemap.exist = false;
+
+        return;
+    }
+}
+
 void Scene::loadScene(const std::string& filename) {
+
     // Construct the full path to the scenes folder
     std::filesystem::path scenesFolder = std::filesystem::current_path() / "scenes";
     std::filesystem::path fullPath = scenesFolder / filename;

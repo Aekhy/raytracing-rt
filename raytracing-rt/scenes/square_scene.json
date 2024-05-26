@@ -1,0 +1,165 @@
+{
+    "Materials": [
+        {
+            "Albedo": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "EmissionColor": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "EmissionPower": 0.0,
+            "IndiceIn": 1.5,
+            "IndiceOut": 1.0,
+            "Metallic": 0.0,
+            "Name": "White Matte",
+            "Roughness": 0.800000011920929,
+            "Type": 0
+        },
+        {
+            "Albedo": [
+                1.0,
+                0.0,
+                1.0
+            ],
+            "EmissionColor": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "EmissionPower": 0.0,
+            "IndiceIn": 1.5,
+            "IndiceOut": 1.0,
+            "Metallic": 0.0,
+            "Name": "Pink Matte",
+            "Roughness": 0.800000011920929,
+            "Type": 0
+        },
+        {
+            "Albedo": [
+                0.0,
+                1.0,
+                1.0
+            ],
+            "EmissionColor": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "EmissionPower": 0.0,
+            "IndiceIn": 1.5,
+            "IndiceOut": 1.0,
+            "Metallic": 0.0,
+            "Name": "Blue Matte",
+            "Roughness": 0.800000011920929,
+            "Type": 0
+        },
+        {
+            "Albedo": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "EmissionColor": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "EmissionPower": 0.0,
+            "IndiceIn": 1.5,
+            "IndiceOut": 1.0,
+            "Metallic": 1.0,
+            "Name": "Mirror",
+            "Roughness": 0.03999999910593033,
+            "Type": 1
+        },
+        {
+            "Albedo": [
+                0.800000011920929,
+                0.5,
+                0.20000000298023224
+            ],
+            "EmissionColor": [
+                0.800000011920929,
+                0.5,
+                0.20000000298023224
+            ],
+            "EmissionPower": 8.329999923706055,
+            "IndiceIn": 1.5,
+            "IndiceOut": 1.0,
+            "Metallic": 0.0,
+            "Name": "Emissive",
+            "Roughness": 0.2800000011920929,
+            "Type": 0
+        },
+        {
+            "Albedo": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "EmissionColor": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "EmissionPower": 0.0,
+            "IndiceIn": 1.5,
+            "IndiceOut": 1.0,
+            "Metallic": 0.0,
+            "Name": "Glass",
+            "Roughness": 1.0,
+            "Type": 2
+        }
+    ],
+    "Spheres": [
+        {
+            "MaterialIndex": 1,
+            "Position": [
+                -1.2000000476837158,
+                -4.099999904632568,
+                -2.0
+            ],
+            "Radius": 6.199999809265137
+        },
+        {
+            "MaterialIndex": 5,
+            "Position": [
+                0.0,
+                4.699999809265137,
+                0.0
+            ],
+            "Radius": 2.299999952316284
+        },
+        {
+            "MaterialIndex": 4,
+            "Position": [
+                2.9000000953674316,
+                12.699999809265137,
+                0.0
+            ],
+            "Radius": 3.4000000953674316
+        },
+        {
+            "MaterialIndex": 1,
+            "Position": [
+                -7.800000190734863,
+                4.400000095367432,
+                0.0
+            ],
+            "Radius": 3.799999952316284
+        },
+        {
+            "MaterialIndex": 2,
+            "Position": [
+                6.800000190734863,
+                4.400000095367432,
+                0.0
+            ],
+            "Radius": 4.300000190734863
+        }
+    ]
+}

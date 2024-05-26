@@ -8,11 +8,45 @@
 #define M_PI 3.14159265358979323846  /* pi */
 
 
-bool vectorsAreEqual(const glm::vec3& v1, const glm::vec3& v2, float epsilon) {
-	return (fabs(v1.x - v2.x) < epsilon) &&
-		(fabs(v1.y - v2.y) < epsilon) &&
-		(fabs(v1.z - v2.z) < epsilon);
-}
+/*
+
+float nt = material.IndiceIn;
+		float ni = material.IndiceOut;
+		float R0 = (ni - nt) / (ni + nt);
+		R0 = R0 * R0;
+
+		glm::vec3 N = normal;
+
+		if (glm::dot(N, incomingOmega) > 0) // from inside
+		{
+			N = N * -1.0f;
+			// swap ni, nt
+			float tmp = nt;
+			nt = ni;
+			ni = tmp;
+		}
+		float n = ni / nt;
+		float cosin = glm::dot(N, incomingOmega) * -1.0f;
+		float x = (1.0f - cosin);
+		float ReflProb = R0 + (1.0f - R0) * x * x * x * x * x;
+		float cost2 = 1.0f - n * n * (1.0f - cosin * cosin);
+
+		float rdmChoice = CustomRand::uniform_random_value();
+		if (cost2 > 0 && rdmChoice > ReflProb) // refraction
+		{
+			glm::vec3 refracted = glm::normalize((incomingOmega * n) + (N * (n * cosin - sqrt(cost2))));
+			omega = refracted;
+			return glm::vec3(1.0f); // Return transmittance probability
+		}
+		else
+		{
+			// Total internal reflection
+			omega = glm::normalize((incomingOmega + N * (cosin * 2)));
+
+			return glm::vec3(ReflProb); // Return reflectance probability
+		}
+*/
+
 
 glm::vec3 Sampler::sample(glm::vec3 incomingOmega, Material material, glm::vec3 normal, glm::vec3& omega) const
 {
@@ -29,10 +63,11 @@ glm::vec3 Sampler::sample(glm::vec3 incomingOmega, Material material, glm::vec3 
 	{
 
 		omega = glm::reflect(incomingOmega, normal);
-		return  material.Albedo;
+		return  glm::vec3(1.0f);
 	} 
 	else if (material.Type == DIELECTRIC)
 	{
+		
 		float nt = material.IndiceIn;
 		float ni = material.IndiceOut;
 		float R0 = (ni - nt) / (ni + nt);
@@ -59,22 +94,19 @@ glm::vec3 Sampler::sample(glm::vec3 incomingOmega, Material material, glm::vec3 
 		{
 			glm::vec3 refracted = glm::normalize((incomingOmega * n) + (N * (n * cosin - sqrt(cost2))));
 			omega = refracted;
-
-			glm::vec3 delta_direction = glm::normalize(incomingOmega) - omega;
-			return glm::vec3(1.10f);
-			
+			return glm::vec3((nt * nt) / (ni * ni)); // Return transmittance probability
 		}
 		else
 		{
+			// Total internal reflection
 			omega = glm::normalize((incomingOmega + N * (cosin * 2)));
-			return glm::vec3(ReflProb);;
 
+			return glm::vec3(1.0f); // Return reflectance probability
 		}
-
 	}
 }
 
-glm::vec3 Sampler::eval(Material material) const
+glm::vec3 Sampler::eval(glm::vec3 incomingOmega, Material material, glm::vec3 normal, glm::vec3 omega) const
 {
 	if (material.Type == DIFFUSE) {
 		return material.Albedo /(float) M_PI;
@@ -82,14 +114,20 @@ glm::vec3 Sampler::eval(Material material) const
 	else if (material.Type == METALLIC) {
 		return glm::vec3{ 0 };
 	}
+	else if (material.Type == DIELECTRIC) {
+		return glm::vec3{ 0 };
+	}
 }
 
-float Sampler::pdf(Material material) const
+float Sampler::pdf(glm::vec3 incomingOmega, Material material, glm::vec3 normal, glm::vec3 omega) const
 {
 	if (material.Type == DIFFUSE) {
 		return 1.0f / (float)M_PI;
 	}
 	else if (material.Type == METALLIC) {
+		return 0.0f;
+	}
+	else if (material.Type == DIELECTRIC) {
 		return 0.0f;
 	}
 

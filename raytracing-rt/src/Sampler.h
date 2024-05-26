@@ -14,9 +14,9 @@ public:
 	glm::vec3 local_to_world(const glm::vec3& localDir, const glm::vec3& n) const;
 private:
 	// get brdf
-	glm::vec3 eval(Material material) const;
+	glm::vec3 eval(glm::vec3 incomingOmega, Material material, glm::vec3 normal, glm::vec3 omega) const;
 	// get probability of sample
-	float pdf(Material material) const;
+	float pdf(glm::vec3 incomingOmega, Material material, glm::vec3 normal, glm::vec3 omega) const;
 
 	void ons(const glm::vec3& v1, glm::vec3& v2, glm::vec3& v3) const;
 
