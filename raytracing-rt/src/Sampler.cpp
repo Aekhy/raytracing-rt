@@ -47,6 +47,28 @@ float nt = material.IndiceIn;
 		}
 */
 
+float fresnelReflectance(float cosThetaI, float ni, float nt) {
+	// Snell's law
+	float sinThetaI = sqrtf(fmax(0.0f, 1.0f - cosThetaI * cosThetaI));
+	float sinThetaT = ni / nt * sinThetaI;
+
+	// Total internal reflection
+	if (sinThetaT >= 1.0f) {
+		return 1.0f;
+	}
+
+	float cosThetaT = sqrtf(fmax(0.0f, 1.0f - sinThetaT * sinThetaT));
+
+	float Rs = ((nt * cosThetaI) - (ni * cosThetaT)) / ((nt * cosThetaI) + (ni * cosThetaT));
+	float Rp = ((nt * cosThetaT) - (ni * cosThetaI)) / ((nt * cosThetaT) + (ni * cosThetaI));
+
+	Rs = Rs * Rs;
+	Rp = Rp * Rp;
+
+	return (Rs + Rp) / 2.0f;
+}
+
+
 
 glm::vec3 Sampler::sample(glm::vec3 incomingOmega, Material material, glm::vec3 normal, glm::vec3& omega) const
 {
@@ -70,8 +92,8 @@ glm::vec3 Sampler::sample(glm::vec3 incomingOmega, Material material, glm::vec3 
 		
 		float nt = material.IndiceIn;
 		float ni = material.IndiceOut;
-		float R0 = (ni - nt) / (ni + nt);
-		R0 = R0 * R0;
+		//float R0 = (ni - nt) / (ni + nt);
+		//R0 = R0 * R0;
 
 		glm::vec3 N = normal;
 
@@ -85,16 +107,17 @@ glm::vec3 Sampler::sample(glm::vec3 incomingOmega, Material material, glm::vec3 
 		}
 		float n = ni / nt;
 		float cosin = glm::dot(N, incomingOmega) * -1.0f;
-		float x = (1.0f - cosin);
-		float ReflProb = R0 + (1.0f - R0) * x * x * x * x * x;
-		float cost2 = 1.0f - n * n * (1.0f - cosin * cosin);
+		//float x = (1.0f - cosin);
+		//float ReflProb = R0 + (1.0f - R0) * x * x * x * x * x;
+		float ReflProb = fresnelReflectance(cosin, ni, nt);
+		float cost2 = fmax(0.0f, 1.0f - n * n * (fmax(0.0f, 1.0f - cosin * cosin)));
 
 		float rdmChoice = CustomRand::uniform_random_value();
-		if (cost2 > 0 && rdmChoice > ReflProb) // refraction
+		if (rdmChoice > ReflProb) // refraction
 		{
 			glm::vec3 refracted = glm::normalize((incomingOmega * n) + (N * (n * cosin - sqrt(cost2))));
 			omega = refracted;
-			return glm::vec3((nt * nt) / (ni * ni)); // Return transmittance probability
+			return glm::vec3((nt * nt) / (ni * ni) ); // Return transmittance probability
 		}
 		else
 		{

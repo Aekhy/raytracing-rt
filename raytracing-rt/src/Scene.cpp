@@ -15,7 +15,7 @@ MaterialType Type,
 float IndiceOut,
 float IndiceIn)
 {
-
+    Materials.push_back(Material{ Name, Albedo, Roughness, Metallic, EmissionColor, EmissionPower, Type, IndiceOut, IndiceIn });
 }
 
 void Scene::AddSphere(const glm::vec3& position, float radius, int materialIndex)

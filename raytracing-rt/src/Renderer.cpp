@@ -142,23 +142,18 @@ namespace Utils {
 
 	static uint32_t ConvertToRGBA(const glm::vec4 color)
 	{
-		uint8_t r = (sqrtf(color.r) * 255.0f);
-		uint8_t g = (sqrtf(color.g) * 255.0f);
-		uint8_t b = (sqrtf(color.b) * 255.0f);
-		//uint8_t r = (color.r * 255.0f);
-		//uint8_t g = (color.g * 255.0f);
-		//uint8_t b = (color.b * 255.0f);
+		//uint8_t r = (sqrtf(color.r) * 255.0f);
+		//uint8_t g = (sqrtf(color.g) * 255.0f);
+		//uint8_t b = (sqrtf(color.b) * 255.0f);
+		uint8_t r = (color.r * 255.0f);
+		uint8_t g = (color.g * 255.0f);
+		uint8_t b = (color.b * 255.0f);
 		uint8_t a = (color.a * 255.0f);
 
 		uint32_t result = (a << 24) | (b << 16) | (g << 8) | r;
 		return result;
 	}
 
-
-	glm::vec4 SchlickUniformRationalQuantization(const glm::vec3& radiance, float maxRadiance) {
-		float L = glm::compMax(radiance) / (1.0f + maxRadiance);
-		return glm::vec4(radiance * (1.0f / (1.0f + maxRadiance)), 1.0f);
-	}
 }
 
 void Renderer::OnResize(uint32_t width, uint32_t height) {

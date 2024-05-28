@@ -1,0 +1,183 @@
+{
+    "Materials": [
+        {
+            "Albedo": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "EmissionColor": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "EmissionPower": 0.0,
+            "IndiceIn": 1.5,
+            "IndiceOut": 1.0,
+            "Metallic": 0.0,
+            "Name": "White Matte",
+            "Roughness": 0.800000011920929,
+            "Type": 0
+        },
+        {
+            "Albedo": [
+                1.0,
+                0.0,
+                1.0
+            ],
+            "EmissionColor": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "EmissionPower": 0.0,
+            "IndiceIn": 1.5,
+            "IndiceOut": 1.0,
+            "Metallic": 0.0,
+            "Name": "Pink Matte",
+            "Roughness": 0.800000011920929,
+            "Type": 0
+        },
+        {
+            "Albedo": [
+                0.0,
+                1.0,
+                1.0
+            ],
+            "EmissionColor": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "EmissionPower": 0.0,
+            "IndiceIn": 1.5,
+            "IndiceOut": 1.0,
+            "Metallic": 0.0,
+            "Name": "Blue Matte",
+            "Roughness": 0.800000011920929,
+            "Type": 0
+        },
+        {
+            "Albedo": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "EmissionColor": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "EmissionPower": 0.0,
+            "IndiceIn": 1.5,
+            "IndiceOut": 1.0,
+            "Metallic": 1.0,
+            "Name": "Mirror",
+            "Roughness": 0.03999999910593033,
+            "Type": 1
+        },
+        {
+            "Albedo": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "EmissionColor": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "EmissionPower": 10.0,
+            "IndiceIn": 1.5,
+            "IndiceOut": 1.0,
+            "Metallic": 0.0,
+            "Name": "Emissive",
+            "Roughness": 0.10000000149011612,
+            "Type": 0
+        },
+        {
+            "Albedo": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "EmissionColor": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "EmissionPower": 0.0,
+            "IndiceIn": 1.5,
+            "IndiceOut": 1.0,
+            "Metallic": 0.0,
+            "Name": "Glass",
+            "Roughness": 1.0,
+            "Type": 2
+        }
+    ],
+    "Spheres": [
+        {
+            "MaterialIndex": 0,
+            "Position": [
+                0.0,
+                -100.0,
+                0.0
+            ],
+            "Radius": 100.0
+        },
+        {
+            "MaterialIndex": 1,
+            "Position": [
+                0.0,
+                1.600000023841858,
+                0.0
+            ],
+            "Radius": 1.2999999523162842
+        },
+        {
+            "MaterialIndex": 2,
+            "Position": [
+                1.899999976158142,
+                4.0,
+                0.0
+            ],
+            "Radius": 1.2000000476837158
+        },
+        {
+            "MaterialIndex": 5,
+            "Position": [
+                -2.200000047683716,
+                3.200000047683716,
+                -1.100000023841858
+            ],
+            "Radius": 1.100000023841858
+        },
+        {
+            "MaterialIndex": 3,
+            "Position": [
+                -1.0,
+                6.0,
+                -0.6000000238418579
+            ],
+            "Radius": 0.800000011920929
+        },
+        {
+            "MaterialIndex": 4,
+            "Position": [
+                0.0,
+                10.300000190734863,
+                0.0
+            ],
+            "Radius": 2.0999999046325684
+        },
+        {
+            "MaterialIndex": 4,
+            "Position": [
+                5.900000095367432,
+                5.400000095367432,
+                3.5
+            ],
+            "Radius": 0.8999999761581421
+        }
+    ]
+}

@@ -114,12 +114,15 @@ public:
 		ImGui::Checkbox("Real Time", &m_RealTime);
 		ImGui::Checkbox("Accumulate", &m_Renderer.GetSettings().Accumulate);
 		ImGui::Checkbox("Antialiasing", &m_Renderer.GetSettings().Antialiasing);
-		ImGui::SliderInt("Monter Carlo nb sample", &m_Renderer.GetSettings().MonteCarloNbSample, 1, 2048);
+		ImGui::DragInt("Monter Carlo nb sample", &m_Renderer.GetSettings().MonteCarloNbSample, 1.0f, 1, 2048);
 		ImGui::Text("Nb frame: %i", m_Renderer.GetFrameIndex());
 
 		ShouldResetFrame |= ImGui::Button("Reset");
 		
 		ImGui::End();
+
+		// camera
+		
 
 
 		// Scene
@@ -227,6 +230,7 @@ public:
 				std::string selectedFilename = m_CubeMapNames[selectedFileIndex];
 				const char* filename = selectedFilename.c_str();
 				m_Scene.loadCubemap(filename);
+				ShouldResetFrame = true;
 			}
 		}
 		else {
