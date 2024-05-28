@@ -1,4 +1,15 @@
-# Walnut App Template
+# thanks to all the people that made available learning path tracing
+
+This raytracer / pathtracer was made on the base of 
+
+The Cherno youtuber Tutorial serie video
+TU Wien Rendering courses
+
+and many other sources
+
+
+
+## Walnut App Template
 
 This is a simple app template for [Walnut](https://github.com/TheCherno/Walnut) - unlike the example within the Walnut repository, this keeps Walnut as an external submodule and is much more sensible for actually building applications. See the [Walnut](https://github.com/TheCherno/Walnut) repository for more details.
 
